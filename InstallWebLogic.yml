@@ -1,0 +1,18 @@
+---
+
+- name: Oracle Setup
+  hosts: all
+  become: true
+  tasks:
+    - name: Extract JDK tarball
+      command: "tar -zxvf /home/jandel/Downloads/jdk-8u211-linux-x64.tar.gz -C /home/jandel/"
+    
+    - name: Unzip WebLogic installer
+      command: "unzip /home/jandel/Downloads/fmw_12.2.1.4.0_wls_lite_Disk1_1of1.zip -d /home/jandel/"
+    
+    - name: Run WebLogic installer
+      expect:
+        command: "/home/jandel/jdk1.8.0_211/bin/java -jar /home/jandel/fmw_12.2.1.4.0_wls_lite_generic.jar"
+        responses:
+          "Continue? (yes [y] / no [n]) [n]":
+            answer: "yes"

@@ -1,0 +1,14 @@
+---
+
+- name: Update Yum packages
+  hosts: all
+  gather_facts: no
+  become: true
+  tasks:
+    - name: Update all packages
+      yum:
+        name: '*'
+        state: latest
+      tags:
+        - yum
+

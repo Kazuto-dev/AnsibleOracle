@@ -1,0 +1,33 @@
+---
+
+- name: Backup apps folders
+  hosts: all
+  become: true
+  vars:
+    # Calculate the current date and time in the format 'YYYY-MM-DD_HH-MM-SS'
+    current_datetime: "{{ ansible_date_time.date }}_{{ ansible_date_time.time }}"
+    # Destination directory for the backups
+    backup_dest: "/backup"
+
+  tasks:
+    - name: Ensure backup directory exists
+      file:
+        path: "{{ backup_dest }}"
+        state: directory
+        mode: '0777' # Set directory permissions as needed
+      # This task is idempotent; it will only create the directory if it does not exist
+
+    - name: Archive apps folder with current date and time in the name
+      archive:
+        path: "/apps"
+        # Backup file name includes current date and time
+        dest: "{{ backup_dest }}/apps_backup_{{ current_datetime }}.tar.gz"
+        format: gz
+        owner: root # Adjust owner of the backup file as needed
+        group: root # Adjust group of the backup file as needed
+        mode: '0777' # Adjust file permissions as needed
+      register: apps_backup_result
+
+    - name: Check backup results
+      debug:
+        var: "apps_backup_result"

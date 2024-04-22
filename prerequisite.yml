@@ -1,0 +1,29 @@
+---
+
+- name: Ensure sufficient swap space
+  hosts: all
+  become: true
+  tasks:
+    - name: Check current swap space
+      shell: "free -m | awk '/^Swap/ {print $2}'"
+      register: swap_space
+      changed_when: false
+
+    - name: Create swap file if not enough swap space
+      command: "dd if=/dev/zero of=/swapfile bs=1M count=1024"
+      when: swap_space.stdout | int < 512
+      register: swap_file_created
+      notify:
+        - Activate swap file
+
+    - name: Add swap file to fstab for persistence
+      ansible.builtin.lineinfile:
+        path: /etc/fstab
+        line: "/swapfile none swap sw 0 0"
+      when: swap_file_created.changed
+
+  handlers:
+    - name: Activate swap file
+      command: "mkswap /swapfile && swapon /swapfile"
+      async: 30
+      poll: 0

@@ -1,0 +1,32 @@
+---
+
+- name: Backup u01 folder
+  hosts: all
+  become: true
+  vars:
+    # Calculate the current date and time in the format 'YYYY-MM-DD_HH-MM-SS'
+    current_datetime: "{{ ansible_date_time.date }}_{{ ansible_date_time.time }}"
+    # Destination directory for the backup
+    backup_dest: "/backup"
+
+  tasks:
+    - name: Create backup directory
+      file:
+        path: "{{ backup_dest }}"
+        state: directory
+        mode: '0777' # Adjust directory permissions as needed
+
+    - name: Archive u01 folder with current date and time in the name
+      archive:
+        path: "/u01"
+        # Backup file name includes current date and time
+        dest: "{{ backup_dest }}/u01_backup_{{ current_datetime }}.tar.gz"
+        format: gz
+        owner: jandel # Adjust owner of the backup file
+        group: jandel # Adjust group of the backup file
+        mode: '0777' # Adjust file permissions if needed
+      register: backup_result
+
+    - name: Check backup result
+      debug:
+        var: backup_result

@@ -1,0 +1,11 @@
+---
+
+- name: Execute WebLogic installer
+  hosts: all
+  become: true
+  become_user: jandel
+  tasks:
+    - name: Run WebLogic installer with nohup
+      shell: "nohup /home/jandel/jdk1.8.0_211/bin/java -jar /home/jandel/fmw_12.2.1.4.0_wls_lite_generic.jar &"
+      async: 0
+      poll: 0
